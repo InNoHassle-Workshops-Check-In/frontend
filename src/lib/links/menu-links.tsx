@@ -113,6 +113,12 @@ export const items: ItemType[] = [
     to: "/extension",
     icon: <span className="icon-[material-symbols--extension-outline]" />,
   },
+  {
+    type: "local",
+    title: "Workshops",
+    to: "/workshops",
+    icon: <span className="icon-[material-symbols--construction-rounded]" />,
+  },
   { type: "separator" },
   {
     type: "external",
