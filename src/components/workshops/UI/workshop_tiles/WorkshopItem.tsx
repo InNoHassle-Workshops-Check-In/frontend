@@ -152,8 +152,13 @@ const WorkshopItem: React.FC<WorkshopItemProps> = ({
       <p className="workshop-places">
         {" "}
         {workshop.maxPlaces > 0
-          ? signedPeople + "/" + workshop.maxPlaces
+          ? workshop.maxPlaces === 500
+            ? signedPeople + "/"
+            : signedPeople + "/" + workshop.maxPlaces
           : "No limit on number of people"}
+        {workshop.maxPlaces === 500 && (
+          <span className="icon-[mdi--infinity]"></span>
+        )}
       </p>
       <h3> {workshop.title}</h3>
       {workshop.date && (
@@ -205,7 +210,6 @@ const WorkshopItem: React.FC<WorkshopItemProps> = ({
       )}
       {workshopChosen ? (
         <button
-          disabled={signedPeople === workshop.maxPlaces}
           onClick={handleCheckOut}
           className="check-out-button"
           title="Check out"
@@ -214,6 +218,7 @@ const WorkshopItem: React.FC<WorkshopItemProps> = ({
         </button>
       ) : (
         <button
+          disabled={signedPeople === workshop.maxPlaces}
           onClick={handleCheckIn}
           className="check-in-button"
           title="Check in"
