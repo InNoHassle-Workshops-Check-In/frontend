@@ -24,6 +24,17 @@
   transform: translateY(-3px);
   box-shadow: 0 0 12px rgba(120, 0, 255, 0.4);
 }
+
+.workshop-tile.workshop-chosen {
+  background-color: #1e2e1e;
+  background: linear-gradient(135deg, #1a2b1a 0%, #1e2e1e 100%);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.workshop-tile.workshop-chosen:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 12px rgba(76, 175, 80, 0.5);
+}
 .workshop-tile h3 {
   font-size: 18px;
   margin: 0 0 8px;
@@ -146,4 +157,32 @@
   background: rgba(var(--color-brand-violet) / 0.2);
   color: rgba(var(--color-brand-violet) / 0.8);
   transform: scale(1.1);
+}
+
+.workshop-inactive {
+  opacity: 0.6;
+  filter: grayscale(50%);
+  pointer-events: auto;
+}
+
+.workshop-inactive:hover {
+  transform: none;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+}
+
+.workshop-status-inactive {
+  position: absolute;
+  top: 85%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #ff6b6b;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  background: rgba(255, 107, 107, 0.5);
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 107, 107, 0.5);
+  z-index: 10;
+  pointer-events: none;
 }

@@ -17,11 +17,11 @@ type Workshop = {
   endTime: string;
   room: string;
   maxPlaces: number;
-  remainPlaces?: number; // Добавляем поле для оставшихся мест
+  remainPlaces?: number;
   isActive?: boolean;
-  isRegistrable?: boolean; // Добавляем поле для возможности регистрации
+  isRegistrable?: boolean;
 };
-/*jefjkd*/
+
 type User = {
   id: string;
   innohassle_id: string;
