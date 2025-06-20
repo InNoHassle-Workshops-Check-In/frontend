@@ -80,6 +80,7 @@ export function WorkshopsPage() {
           },
         },
       });
+      console.log("Workshops data:", data);
       if (error) {
         console.error("Failed to load workshops:", error);
         alert(
@@ -114,13 +115,14 @@ export function WorkshopsPage() {
           endTime: parseTime(workshop.dtend),
           room: workshop.place,
           maxPlaces: workshop.capacity,
-          remainPlaces: workshop.remain_places || 0, // Добавляем обработку оставшихся мест
+          remainPlaces: workshop.remain_places, // Добавляем обработку оставшихся мест
           isActive: workshop.is_active,
-          isRegistrable: workshop.isRegistrable, // Добавляем поле для возможности регистрации
+          isRegistrable: workshop.is_registrable, // Добавляем поле для возможности регистрации
         };
       });
 
       setWorkshops(transformedWorkshops);
+      console.log("Workshops loaded successfully:", transformedWorkshops);
     } catch (error) {
       console.error("Error loading workshops:", error);
       alert(`Unable to load workshops. Please refresh the page and try again.`);
@@ -143,7 +145,7 @@ export function WorkshopsPage() {
     };
 
     loadUserWithRetry();
-  }, [currentUser]);
+  }, []);
   const createWorkshop = async (newWorkshop: Workshop): Promise<boolean> => {
     try {
       // Преобразуем формат даты и времени в ISO формат для API
@@ -174,17 +176,28 @@ export function WorkshopsPage() {
       } else if (data) {
         console.log("Workshop created successfully:", data);
 
+        const parseTime = (isoString: string): string => {
+          try {
+            const date = new Date(isoString);
+            return date.toTimeString().substring(0, 5);
+          } catch {
+            return (
+              isoString.split("T")[1]?.split(".")[0]?.substring(0, 5) || ""
+            );
+          }
+        };
+
         // Преобразуем ответ API обратно в формат Workshop и добавляем в список
         const createdWorkshop: Workshop = {
           id: data.id,
           title: data.name,
           body: data.description,
           date: data.dtstart.split("T")[0],
-          startTime: data.dtstart.split("T")[1]?.split(".")[0] || "",
-          endTime: data.dtend.split("T")[1]?.split(".")[0] || "",
+          startTime: parseTime(data.dtstart),
+          endTime: parseTime(data.dtend),
           room: data.place,
           maxPlaces: data.capacity,
-          remainPlaces: data.remain_places || data.capacity, // Используем remain_places или capacity как fallback
+          remainPlaces: data.remain_places || data.capacity,
           isActive: data.is_active,
         };
 
@@ -367,6 +380,7 @@ export function WorkshopsPage() {
                   room: editingWorkshop.room,
                   maxPlaces: editingWorkshop.maxPlaces,
                   remainPlaces: editingWorkshop.remainPlaces,
+                  isActive: editingWorkshop.isActive,
                 }
               : undefined
           }
