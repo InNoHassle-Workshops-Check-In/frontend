@@ -82,14 +82,14 @@ const Description: React.FC<WorkshopProps> = ({ workshop }) => {
   if (!workshop) return <div>No description</div>;
   const navigate = useNavigate();
   const handleRoomClick = (e: React.MouseEvent<HTMLParagraphElement>) => {
-      e.stopPropagation();
-      if (workshop.room) {
-        navigate({
-          to: "/maps",
-          search: { q: workshop.room },
-        });
-      }
-    };
+    e.stopPropagation();
+    if (workshop.room) {
+      navigate({
+        to: "/maps",
+        search: { q: workshop.room },
+      });
+    }
+  };
 
   return (
     <div className="description-content">
@@ -101,12 +101,12 @@ const Description: React.FC<WorkshopProps> = ({ workshop }) => {
         </div>
         <p className="flex w-full items-center whitespace-pre-wrap py-1 [overflow-wrap:anywhere]">
           <span
-              onClick={handleRoomClick}
-              className="cursor-pointer text-brand-violet hover:underline"
-              title="Click to view on map"
-            >
-              {workshop.room}
-            </span>
+            onClick={handleRoomClick}
+            className="cursor-pointer text-brand-violet hover:underline"
+            title="Click to view on map"
+          >
+            {workshop.room}
+          </span>
         </p>
       </div>
       <div className="flex flex-row items-center gap-2 text-xl text-contrast/75">
