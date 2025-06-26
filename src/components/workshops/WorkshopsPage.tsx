@@ -1,11 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState, useEffect } from "react";
-import "./styles/App.css";
 import WorkshopList from "./UI/workshop_tiles/WorkshopList";
 import PostForm from "@/components/workshops/UI/post_form/PostForm.tsx";
 import Modal from "./UI/modal/ModalWindow";
 import Description from "./UI/description_form/Description";
-import styles from "./UI/modal/ModalWindow.module.css";
 import { workshopsFetch } from "@/api/workshops";
 
 type Workshop = {
@@ -326,18 +324,19 @@ export function WorkshopsPage() {
       alert(`Failed to change role. Please try again.`);
     }
   };
-
   return (
-    <div className="App">
+    <div className="min-h-screen w-full">
+      {" "}
       {/* Показываем кнопку изменения роли только если пользователь авторизован */}
       {currentUser && (
         <button
-          className="fab-button"
+          className={`fixed right-6 z-[1001] cursor-pointer rounded-lg border-none bg-brand-violet px-5 py-3 text-base font-bold text-white shadow-[0_4px_12px_rgba(0,0,0,0.4)] transition-colors duration-200 ease-in-out hover:bg-brand-violet/80 ${
+            currentUser.role === "admin"
+              ? "bottom-28 lg:bottom-16" // 112px на мобиле, 64px на десктопе
+              : "bottom-20 lg:bottom-3" // 80px на мобиле, 12px на десктопе
+          }`}
           title={`Set ${currentUser.role === "admin" ? "user" : "admin"} role`}
           onClick={handleRoleChangeRequest}
-          style={{
-            bottom: currentUser.role === "admin" ? "80px" : "24px",
-          }}
         >
           Set {currentUser.role === "admin" ? "user" : "admin"}
         </button>
@@ -345,12 +344,9 @@ export function WorkshopsPage() {
       {/* Показываем кнопку добавления воркшопа только для администраторов */}
       {currentUser?.role === "admin" && (
         <button
-          className="fab-button"
+          className="fixed bottom-14 right-6 z-[1001] cursor-pointer rounded-lg border-none bg-brand-violet px-5 py-3 text-base font-bold text-white shadow-[0_4px_12px_rgba(0,0,0,0.4)] transition-colors duration-200 ease-in-out hover:bg-brand-violet/80 lg:bottom-3"
           title="Add new workshop"
           onClick={() => setModalVisible(true)}
-          style={{
-            bottom: "24px",
-          }}
         >
           Add workshop
         </button>
@@ -362,9 +358,13 @@ export function WorkshopsPage() {
         workshops={workshops}
         openDescription={openDescription}
         currentUserRole={currentUser?.role || "user"}
-      />
+      />{" "}
       {/* Модалка для создания нового воркшопа чекай UI/modal */}
-      <Modal visible={modalVisible} onClose={handleModalClose}>
+      <Modal
+        visible={modalVisible}
+        onClose={handleModalClose}
+        title={editingWorkshop ? "Edit workshop" : "Create workshop"}
+      >
         {/* Форма для создания/редакта воркшопа чекай PostForm.tsx */}
         {/* Тут тернарка подставляет данные если ты в режиме редактирования */}
         <PostForm
@@ -393,7 +393,8 @@ export function WorkshopsPage() {
       <Modal
         visible={descriptionVisible}
         onClose={() => setDescriptionVisible(false)}
-        className={styles["modal-content-special"]}
+        title={selectedWorkshop?.title}
+        className="whitespace-pre-wrap break-words"
       >
         <Description workshop={selectedWorkshop} />
       </Modal>

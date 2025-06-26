@@ -3,7 +3,6 @@ import { useState } from "react";
 import WorkshopInput from "../input/WorkshopInput";
 import WorkshopTextArea from "../input/WorkshopTextArea";
 import DateTimePlacePicker from "../date/DateTimePlacePicker";
-import classes from "./PostForm.module.css";
 
 type Workshop = {
   id: string;
@@ -132,15 +131,21 @@ const PostForm: React.FC<PostFormProps> = ({
 
   return (
     <form onSubmit={addNewWorkshop}>
-      <label className={classes.label}>Title</label>
+      <label className="text-xs font-medium uppercase tracking-wider text-white">
+        Title
+      </label>
       <WorkshopInput
         value={workshop.title}
         onChange={handleTitleChange}
         type="text"
         placeholder="Title"
       />
-      {titleError && <div className={classes.error}>{titleError}</div>}
-      <label className={classes.label}>Description</label>
+      {titleError && (
+        <div className="mb-2 mt-1 text-xs text-red-500">{titleError}</div>
+      )}
+      <label className="text-xs font-medium uppercase tracking-wider text-white">
+        Description
+      </label>
       <WorkshopTextArea
         value={workshop.body}
         onChange={(e) => setWorkshop({ ...workshop, body: e.target.value })}
@@ -163,14 +168,7 @@ const PostForm: React.FC<PostFormProps> = ({
           setWorkshop({ ...workshop, maxPlaces })
         }
       />{" "}
-      <div
-        style={{
-          margin: "16px 0",
-          display: "flex",
-          alignItems: "center",
-          gap: "8px",
-        }}
-      >
+      <div className="my-4 flex items-center gap-2">
         <input
           type="checkbox"
           id="isActive"
@@ -178,18 +176,27 @@ const PostForm: React.FC<PostFormProps> = ({
           onChange={(e) =>
             setWorkshop({ ...workshop, isActive: e.target.checked })
           }
-          style={{ width: "auto" }}
+          className="w-auto"
         />
         <label
           htmlFor="isActive"
-          className={classes.label}
-          style={{ margin: 0 }}
+          className="m-0 text-xs font-medium uppercase tracking-wider text-white"
         >
           Active Workshop
-        </label>
+        </label>{" "}
       </div>
-      <div className={classes["button-container"]}>
-        <button className={classes["add-button"]} type="submit">
+      <div className="flex flex-row gap-2">
+        <button
+          type="button"
+          className="flex w-full items-center justify-center gap-4 rounded-2xl bg-primary px-4 py-2 text-lg font-medium hover:bg-primary-hover dark:bg-primary-hover dark:hover:bg-primary"
+          onClick={() => onClose && onClose()}
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-purple-400 bg-purple-200 px-4 py-2 text-lg font-medium text-purple-900 hover:bg-purple-300 dark:border-purple-600 dark:bg-purple-900 dark:text-purple-300 dark:hover:bg-purple-950"
+        >
           {isEditing ? "UPDATE" : "ADD"}
         </button>
       </div>

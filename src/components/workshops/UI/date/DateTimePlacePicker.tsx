@@ -1,5 +1,4 @@
 import React from "react";
-import classes from "./DateTimePlacePicker.module.css";
 
 export interface DateTimePickerProps {
   date: string;
@@ -27,59 +26,69 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
   onMaxPlacesChange,
 }) => {
   return (
-    <div className={classes.dateTimeContainer}>
-      <div className={classes.dateRoomGroup}>
-        <div className={classes.inputGroup}>
-          <label className={classes.label}>Date</label>
+    <div className="my-2 flex flex-col gap-4">
+      <div className="flex gap-3">
+        <div className="flex flex-[2] flex-col gap-1">
+          <label className="text-xs font-medium uppercase tracking-wider text-white">
+            Date
+          </label>
           <input
             type="date"
             value={date}
             onChange={(e) => onDateChange(e.target.value)}
-            className={classes.dateTimeInput}
+            className="w-full rounded-lg border border-white/30 bg-white/10 px-4 py-2.5 text-sm text-white outline-none transition-all duration-300 focus:border-violet-400/60 focus:shadow-[0_0_5px_rgba(122,122,210,0.3)] [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:invert"
           />
         </div>
 
-        <div className={classes.inputGroup}>
-          <label className={classes.label}>Room</label>
+        <div className="flex flex-1 flex-col gap-1">
+          <label className="text-xs font-medium uppercase tracking-wider text-white">
+            Room
+          </label>
           <input
             type="text"
             value={room}
             onChange={(e) => onRoomChange(e.target.value)}
-            className={classes.dateTimeInput}
+            className="w-full rounded-lg border border-white/30 bg-white/10 px-4 py-2.5 text-sm text-white outline-none transition-all duration-300 focus:border-violet-400/60 focus:shadow-[0_0_5px_rgba(122,122,210,0.3)]"
             placeholder="Room"
           />
         </div>
 
-        <div className={classes.inputGroup}>
-          <label className={classes.label}>Places</label>
+        <div className="flex flex-1 flex-col gap-1">
+          <label className="text-xs font-medium uppercase tracking-wider text-white">
+            Places
+          </label>
           <input
             type="text"
             value={maxPlaces}
             onChange={(e) => onMaxPlacesChange(Number(e.target.value))}
-            className={classes.dateTimeInput}
+            className="w-full rounded-lg border border-white/30 bg-white/10 px-4 py-2.5 text-sm text-white outline-none transition-all duration-300 focus:border-violet-400/60 focus:shadow-[0_0_5px_rgba(122,122,210,0.3)]"
             placeholder="limit"
           />
         </div>
       </div>
 
-      <div className={classes.timeGroup}>
-        <div className={classes.inputGroup}>
-          <label className={classes.label}>Start Time</label>
+      <div className="flex gap-3">
+        <div className="flex flex-1 flex-col gap-1">
+          <label className="text-xs font-medium uppercase tracking-wider text-white">
+            Start Time
+          </label>
           <input
             type="time"
             value={startTime}
             onChange={(e) => onStartTimeChange(e.target.value)}
-            className={classes.dateTimeInput}
+            className="w-full rounded-lg border border-white/30 bg-white/10 px-4 py-2.5 text-sm text-white outline-none transition-all duration-300 focus:border-violet-400/60 focus:shadow-[0_0_5px_rgba(122,122,210,0.3)] [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:invert"
           />
         </div>
 
-        <div className={classes.inputGroup}>
-          <label className={classes.label}>End Time</label>
+        <div className="flex flex-1 flex-col gap-1">
+          <label className="text-xs font-medium uppercase tracking-wider text-white">
+            End Time
+          </label>
           <input
             type="time"
             value={endTime}
             onChange={(e) => onEndTimeChange(e.target.value)}
-            className={classes.dateTimeInput}
+            className="w-full rounded-lg border border-white/30 bg-white/10 px-4 py-2.5 text-sm text-white outline-none transition-all duration-300 focus:border-violet-400/60 focus:shadow-[0_0_5px_rgba(122,122,210,0.3)] [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:invert"
           />
         </div>
       </div>
