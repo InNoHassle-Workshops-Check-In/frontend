@@ -42,10 +42,17 @@ export function WorkshopsPage() {
   );
   // Стэйт для хранения информации о текущем пользователе
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  // Стэйт для принудительного обновления данных участников
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const openDescription = (workshop: Workshop) => {
     setSelectedWorkshop(workshop);
     setDescriptionVisible(true);
+  };
+
+  // Функция для обновления данных участников в модальном окне
+  const refreshParticipants = () => {
+    setRefreshTrigger((prev) => prev + 1);
   };
 
   // Функция для загрузки информации о текущем пользователе
@@ -211,8 +218,16 @@ export function WorkshopsPage() {
     }
     return false;
   };
-
   const removeWorkshop = async (workshop: Workshop) => {
+    // Показываем диалог подтверждения перед удалением
+    const confirmDelete = window.confirm(
+      `Are you sure you want to delete the workshop "${workshop.title}"?\n\nThis action cannot be undone.`,
+    );
+
+    if (!confirmDelete) {
+      return; // Если пользователь отменил, выходим из функции
+    }
+
     try {
       const { data, error } = await workshopsFetch.DELETE(
         `/api/workshops/{workshop_id}`,
@@ -358,6 +373,7 @@ export function WorkshopsPage() {
         workshops={workshops}
         openDescription={openDescription}
         currentUserRole={currentUser?.role || "user"}
+        refreshParticipants={refreshParticipants}
       />{" "}
       {/* Модалка для создания нового воркшопа чекай UI/modal */}
       <Modal
