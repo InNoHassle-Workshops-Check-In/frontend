@@ -380,6 +380,7 @@ export function WorkshopsPage() {
         visible={modalVisible}
         onClose={handleModalClose}
         title={editingWorkshop ? "Edit workshop" : "Create workshop"}
+        zIndex={20}
       >
         {/* Форма для создания/редакта воркшопа чекай PostForm.tsx */}
         {/* Тут тернарка подставляет данные если ты в режиме редактирования */}
@@ -412,7 +413,14 @@ export function WorkshopsPage() {
         title={selectedWorkshop?.title}
         className="whitespace-pre-wrap break-words"
       >
-        <Description workshop={selectedWorkshop} />
+        <Description
+          workshop={selectedWorkshop}
+          refreshTrigger={refreshTrigger}
+          remove={removeWorkshop}
+          edit={editWorkshop}
+          currentUserRole={currentUser?.role || "user"}
+          refreshParticipants={refreshParticipants}
+        />
       </Modal>
       {/*<a
         href="https://t.me/maximf3"
