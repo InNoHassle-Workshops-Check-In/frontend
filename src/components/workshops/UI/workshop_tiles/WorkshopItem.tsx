@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState } from "react";
 import { workshopsFetch } from "@/api/workshops";
 import { useNavigate } from "@tanstack/react-router";
@@ -90,10 +91,17 @@ const WorkshopItem: React.FC<WorkshopItemProps> = ({
   };
   useEffect(() => {
     (async () => {
-      const { data, error } = await workshopsFetch.GET(`/users/my_checkins`);
-      if (!error && Array.isArray(data)) {
-        const isCheckedIn = data.some((w) => w.id === workshop.id);
-        setWorkshopChosen(isCheckedIn);
+      try {
+        const { data, error } = await workshopsFetch.GET(`/users/my_checkins`);
+        if (!error && Array.isArray(data)) {
+          const isCheckedIn = data.some((w) => w.id === workshop.id);
+          setWorkshopChosen(isCheckedIn);
+        } else {
+          // В случае любой ошибки считаем, что пользователь не записан
+          setWorkshopChosen(false);
+        }
+      } catch (err) {
+        setWorkshopChosen(false);
       }
 
       // Используем remainPlaces из пропсов воркшопа если есть, иначе делаем API запрос
@@ -208,7 +216,7 @@ const WorkshopItem: React.FC<WorkshopItemProps> = ({
         <p className="pointer-events-none absolute bottom-3 left-1/2 z-10 -translate-x-1/2 transform rounded-xl border border-[rgba(255,107,107,0.3)] bg-[rgba(255,107,107,0.15)] px-4 py-2 text-center text-sm font-semibold text-[#ff6b6b] backdrop-blur-[8px] dark:border-[rgba(255,107,107,0.3)] dark:bg-[rgba(255,107,107,0.15)]">
           {getInactiveStatusText()}
         </p>
-      )}{" "}
+      )}
       {workshop.room && (
         <div className={`my-2 ${!isWorkshopActive() ? "opacity-50" : ""}`}>
           <p className="m-0 text-base text-contrast/80">
