@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { workshopsFetch } from "@/api/workshops";
 import { useNavigate } from "@tanstack/react-router";
+import { useToast } from "../../toast";
 
 type Workshop = {
   id: string;
@@ -35,11 +36,13 @@ const WorkshopItem: React.FC<WorkshopItemProps> = ({
   refreshParticipants,
 }) => {
   const navigate = useNavigate();
+  const { showError, showSuccess } = useToast();
   const [workshopChosen, setWorkshopChosen] = useState(false);
   {
     /* Стэйт для управления количеством записанных людей */
   }
   const [signedPeople, setSignedPeople] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState(false);
   // Функция для проверки активности воркшопа
   const isWorkshopActive = () => {
     return workshop.isActive !== false && workshop.isRegistrable !== false;
@@ -49,7 +52,7 @@ const WorkshopItem: React.FC<WorkshopItemProps> = ({
     // Проверяем, прошел ли воркшоп
     const now = new Date();
     const workshopDate = new Date(workshop.date);
-    const [hours, minutes] = workshop.endTime.split(":").map(Number);
+    const [hours, minutes] = workshop.startTime.split(":").map(Number);
     workshopDate.setHours(hours, minutes, 0, 0);
 
     if (workshopDate < now) {
@@ -101,26 +104,19 @@ const WorkshopItem: React.FC<WorkshopItemProps> = ({
   };
   useEffect(() => {
     (async () => {
-      try {
-        const { data, error } = await workshopsFetch.GET(`/users/my_checkins`);
-        if (!error && Array.isArray(data)) {
-          const isCheckedIn = data.some((w) => w.id === workshop.id);
-          setWorkshopChosen(isCheckedIn);
-        } else {
-          // В случае любой ошибки считаем, что пользователь не записан
-          setWorkshopChosen(false);
-        }
-      } catch (err) {
+      const { data, error } = await workshopsFetch.GET(`/users/my_checkins`);
+      if (!error && Array.isArray(data)) {
+        const isCheckedIn = data.some((w) => w.id === workshop.id);
+        setWorkshopChosen(isCheckedIn);
+      } else {
         setWorkshopChosen(false);
       }
 
       // Используем remainPlaces из пропсов воркшопа если есть, иначе делаем API запрос
       if (workshop.remainPlaces !== undefined) {
-        // Вычисляем количество записанных людей из remainPlaces
         const signedCount = workshop.maxPlaces - workshop.remainPlaces;
-        setSignedPeople(Math.max(0, signedCount)); // Не допускаем отрицательных значений
+        setSignedPeople(Math.max(0, signedCount));
       } else {
-        // Fallback к API запросу если remainPlaces недоступно
         const { data: checkinsData, error: checkinsError } =
           await workshopsFetch.GET(`/workshops/{workshop_id}/checkins`, {
             params: {
@@ -138,58 +134,70 @@ const WorkshopItem: React.FC<WorkshopItemProps> = ({
   const handleCheckIn = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
 
+    if (isLoading) return;
+
     if (workshop.maxPlaces > 0 && signedPeople >= workshop.maxPlaces) {
       return;
     }
 
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { data, error } = await workshopsFetch.POST(
-        `/workshops/{workshop_id}/checkin`,
-        {
-          params: {
-            path: { workshop_id: workshop.id.toString() },
-          },
-        },
-      );
+    setIsLoading(true);
 
-      if (!error) {
-        setWorkshopChosen(true);
-        setSignedPeople((count) => count + 1);
-        refreshParticipants(); // Refresh participant data
-      } else {
-        alert("Failed to check in");
-      }
-    } catch (error) {
-      console.error("Check-in failed", error);
-      alert("Error occur when trying to check in.");
+    const { error } = await workshopsFetch.POST(
+      `/workshops/{workshop_id}/checkin`,
+      {
+        params: {
+          path: { workshop_id: workshop.id.toString() },
+        },
+      },
+    );
+
+    if (!error) {
+      setWorkshopChosen(true);
+      setSignedPeople((count) => count + 1);
+      refreshParticipants();
+      showSuccess(
+        "Check-in Successful",
+        "You have successfully checked-in for this workshop.",
+      );
+    } else {
+      showError(
+        "Check-in Failed",
+        "Failed to check in. Please try again. Probably you have overlapping workshops",
+      );
     }
+
+    setIsLoading(false);
   };
 
   const handleCheckOut = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { data, error } = await workshopsFetch.POST(
-        `/workshops/{workshop_id}/checkout`,
-        {
-          params: {
-            path: { workshop_id: workshop.id.toString() },
-          },
-        },
-      );
 
-      if (!error) {
-        setWorkshopChosen(false);
-        setSignedPeople((count) => Math.max(0, count - 1));
-        refreshParticipants(); // Refresh participant data
-      } else {
-        alert("Failed to check out");
-      }
-    } catch (error) {
-      console.error("Check-out failed", error);
-      alert("Error occur when trying to check out");
+    if (isLoading) return;
+
+    setIsLoading(true);
+
+    const { error } = await workshopsFetch.POST(
+      `/workshops/{workshop_id}/checkout`,
+      {
+        params: {
+          path: { workshop_id: workshop.id.toString() },
+        },
+      },
+    );
+
+    if (!error) {
+      setWorkshopChosen(false);
+      setSignedPeople((count) => Math.max(0, count - 1));
+      refreshParticipants();
+      showSuccess(
+        "Check-out Successful",
+        "You have successfully checked-out from this workshop.",
+      );
+    } else {
+      showError("Check-out Failed", "Failed to check out. Please try again.");
     }
+
+    setIsLoading(false);
   };
   return (
     <div
@@ -277,16 +285,17 @@ const WorkshopItem: React.FC<WorkshopItemProps> = ({
         (workshopChosen ? (
           <button
             onClick={handleCheckOut}
-            className="absolute bottom-1.5 right-1/2 flex translate-x-1/2 transform cursor-pointer items-center justify-center rounded-md border border-[#ff6b6b]/20 bg-primary/80 p-1.5 text-[#ff6b6b] backdrop-blur-[12px] transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:translate-x-1/2 hover:scale-110 hover:transform hover:border-[#ff5252]/40 hover:bg-[rgba(255,107,107,0.2)] hover:text-[#ff5252] sm:bottom-3 sm:rounded-xl sm:p-2.5"
+            disabled={isLoading}
+            className="absolute bottom-1.5 right-1/2 flex translate-x-1/2 transform cursor-pointer items-center justify-center rounded-md border border-[#ff6b6b]/20 bg-primary/80 p-1.5 text-[#ff6b6b] backdrop-blur-[12px] transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:translate-x-1/2 hover:scale-110 hover:transform hover:border-[#ff5252]/40 hover:bg-[rgba(255,107,107,0.2)] hover:text-[#ff5252] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100 sm:bottom-3 sm:rounded-xl sm:p-2.5"
             title="Check out"
           >
             <span className="text-xs font-medium sm:text-sm">Check out</span>
           </button>
         ) : (
           <button
-            disabled={signedPeople === workshop.maxPlaces}
+            disabled={signedPeople === workshop.maxPlaces || isLoading}
             onClick={handleCheckIn}
-            className="absolute bottom-1.5 right-1/2 flex translate-x-1/2 transform cursor-pointer items-center justify-center rounded-md border border-green-700/30 bg-primary/80 p-1.5 text-green-700 backdrop-blur-[12px] transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:translate-x-1/2 hover:scale-110 hover:transform hover:border-green-600/50 hover:bg-green-600/20 hover:text-green-600 disabled:cursor-not-allowed disabled:opacity-50 dark:border-[#bcdfbc]/20 dark:text-[#bcdfbc] dark:hover:border-[#aad6aa]/40 dark:hover:bg-[rgba(167,202,167,0.2)] dark:hover:text-[#aad6aa] sm:bottom-3 sm:rounded-xl sm:p-2.5"
+            className="absolute bottom-1.5 right-1/2 flex translate-x-1/2 transform cursor-pointer items-center justify-center rounded-md border border-green-700/30 bg-primary/80 p-1.5 text-green-700 backdrop-blur-[12px] transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:translate-x-1/2 hover:scale-110 hover:transform hover:border-green-600/50 hover:bg-green-600/20 hover:text-green-600 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100 dark:border-[#bcdfbc]/20 dark:text-[#bcdfbc] dark:hover:border-[#aad6aa]/40 dark:hover:bg-[rgba(167,202,167,0.2)] dark:hover:text-[#aad6aa] sm:bottom-3 sm:rounded-xl sm:p-2.5"
             title="Check in"
           >
             <span className="text-xs font-medium sm:text-sm">Check in</span>
