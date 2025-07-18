@@ -55,7 +55,7 @@ const ReplaceURL = (str: string) => {
       const url = urlMatch[0];
       result.push(
         <a
-          className="text-brand-violet hover:scale-110 hover:text-brand-violet/80"
+          className="break-all text-brand-violet hover:scale-110 hover:text-brand-violet/80"
           href={url}
           target="_blank"
           rel="noopener noreferrer"
@@ -76,7 +76,7 @@ const ReplaceURL = (str: string) => {
       const username = tgMatch[0];
       result.push(
         <a
-          className="text-brand-violet hover:scale-110 hover:text-brand-violet/80"
+          className="break-all text-brand-violet hover:scale-110 hover:text-brand-violet/80"
           href={`https://t.me/${username.slice(1)}`}
           target="_blank"
           rel="noopener noreferrer"
@@ -263,7 +263,7 @@ const Description: React.FC<WorkshopProps> = ({
   if (!workshop) return <div>No description</div>;
   return (
     <div className="flex flex-col p-5 text-contrast">
-      <div className="mb-1.5 max-h-24 overflow-y-auto text-lg leading-6">
+      <div className="mb-1.5 max-h-24 overflow-y-auto break-words text-lg leading-6 [overflow-wrap:anywhere]">
         {ReplaceURL(workshop.body)}
       </div>
       <div className="flex flex-row items-center gap-2 text-xl text-contrast/75">
@@ -378,9 +378,22 @@ const Description: React.FC<WorkshopProps> = ({
                 <span className="text-m font-mono">
                   {participant.email.split("@")[0]}
                   {currentUserRole === "admin" &&
-                    (participant.t_alias === "None"
-                      ? " (no tg alias)"
-                      : " (" + participant.t_alias + ")")}
+                    (participant.t_alias === "None" ? (
+                      " (no tg alias)"
+                    ) : (
+                      <>
+                        {" ("}
+                        <a
+                          href={`https://t.me/${participant.t_alias}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-brand-violet hover:scale-110 hover:text-brand-violet/80"
+                        >
+                          @{participant.t_alias}
+                        </a>
+                        {")"}
+                      </>
+                    ))}
                 </span>
               </div>
             ))}
